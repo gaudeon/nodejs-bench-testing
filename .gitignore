@@ -59,6 +59,7 @@ typings/
 
 # ignore pid files
 *.pid
+pids/
 
 # ignore out files
 out_*
