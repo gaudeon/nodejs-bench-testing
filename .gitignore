@@ -57,3 +57,14 @@ typings/
 # dotenv environment variables file
 .env
 
+# ignore pid files
+*.pid
+
+# ignore out files
+out_*
+
+# ignore locking
+package-lock.json
+
+# swap files
+*.swp

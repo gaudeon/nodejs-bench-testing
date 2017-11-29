@@ -1,0 +1,20 @@
+{
+  "name": "nodejs-bench-testing",
+  "version": "1.0.0",
+  "description": "Just some throwaway benchmark testing of node",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gaudeon/nodejs-bench-testing.git"
+  },
+  "author": "Travis Chase",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gaudeon/nodejs-bench-testing/issues"
+  },
+  "homepage": "https://github.com/gaudeon/nodejs-bench-testing#readme"
+}
