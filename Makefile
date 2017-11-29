@@ -21,6 +21,7 @@ start-http: node_modules pid_dir
 
 ab-http: 
 	mkdir -p ${OUT_DIR}
+	$(NODE) -v > "${OUT_DIR}/node_version.txt"
 	$(AB) -n 10000 -c 100 -e "${OUT_DIR}/http_server_data.csv" http://localhost:${HTTP_SERVER_PORT}/ > "${OUT_DIR}/http_server_summary.txt"
 
 stop-http:
