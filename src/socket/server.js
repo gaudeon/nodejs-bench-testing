@@ -15,7 +15,7 @@ const server = net.createServer((c) => {
         //console.log(data.toString('utf8'));
 
         c.write('Hello\r\n');
-        c.end();
+        c.destroy();
     });
 });
 
