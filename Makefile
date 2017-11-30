@@ -17,7 +17,7 @@ SOCKET_SERVER_PIDFILE = ./pids/socket_server.pid
 SOCKET_SERVER_CSVFILE = $(OUT_DIR)/socket_server_data.csv
 SOCKET_SERVER_SUMMARYFILE = $(OUT_DIR)/socket_server_summary.txt
 
-PM2_INSTANCES = 8
+PM2_INSTANCES = max
 PM2_HTTP_SERVER_CSVFILE = $(OUT_DIR)/pm2_http_server_data.csv
 PM2_HTTP_SERVER_SUMMARYFILE = $(OUT_DIR)/pm2_http_server_summary.txt
 PM2_SOCKET_SERVER_CSVFILE = $(OUT_DIR)/pm2_socket_server_data.csv
