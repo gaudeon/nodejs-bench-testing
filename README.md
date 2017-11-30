@@ -39,3 +39,20 @@ Run a benchmark on node.js server using the http module with the cluster module 
 ```make bench-socket-cluster```
 
 Run a benchmark on node.js server using the net module with the cluster module for clustering
+
+## Benchmarking Results
+
+### 2017-11-30
+
+CPU: 4 Core (8 Threads) Intel(R) Xeon(R) CPU E3-1230 V2 @ 3.30GHz
+RAM: 16G DDR3-ECC-Unbuffered Memory
+DISK: 1TB WD-RE4 7200 RPM SATA Drives
+
+V8’s max_old_space_size left at default (~1.5G)
+
+HTTP             6,746 RPS
+Socket          13,769 RPS
+HTTP/PM2         5,851 RPS
+Socket/PM2       6,760 RPS
+HTTP/Cluster     7,187 RPS
+Socket/Cluster   7,124 RPS
