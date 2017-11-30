@@ -16,5 +16,7 @@
   "bugs": {
     "url": "https://github.com/gaudeon/nodejs-bench-testing/issues"
   },
-  "homepage": "https://github.com/gaudeon/nodejs-bench-testing#readme"
+  "homepage": "https://github.com/gaudeon/nodejs-bench-testing#readme",
+  "dependencies": {
+  }
 }
