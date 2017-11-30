@@ -11,11 +11,23 @@ HTTP_SERVER_PIDFILE = ./pids/http_server.pid
 HTTP_SERVER_CSVFILE = $(OUT_DIR)/http_server_data.csv
 HTTP_SERVER_SUMMARYFILE = $(OUT_DIR)/http_server_summary.txt
 
+HTTP_CLUSTER_SERVER = src/http_cluster/server.js
+HTTP_CLUSTER_SERVER_PORT = 8080
+HTTP_CLUSTER_SERVER_PIDFILE = ./pids/http_cluster_server.pid
+HTTP_CLUSTER_SERVER_CSVFILE = $(OUT_DIR)/http_cluster_server_data.csv
+HTTP_CLUSTER_SERVER_SUMMARYFILE = $(OUT_DIR)/http_cluster_server_summary.txt
+
 SOCKET_SERVER = src/socket/server.js
 SOCKET_SERVER_PORT = 8080
 SOCKET_SERVER_PIDFILE = ./pids/socket_server.pid
 SOCKET_SERVER_CSVFILE = $(OUT_DIR)/socket_server_data.csv
 SOCKET_SERVER_SUMMARYFILE = $(OUT_DIR)/socket_server_summary.txt
+
+SOCKET_CLUSTER_SERVER = src/socket_cluster/server.js
+SOCKET_CLUSTER_SERVER_PORT = 8080
+SOCKET_CLUSTER_SERVER_PIDFILE = ./pids/socket_cluster_server.pid
+SOCKET_CLUSTER_SERVER_CSVFILE = $(OUT_DIR)/socket_cluster_server_data.csv
+SOCKET_CLUSTER_SERVER_SUMMARYFILE = $(OUT_DIR)/socket_cluster_server_summary.txt
 
 PM2_INSTANCES = max
 PM2_HTTP_SERVER_CSVFILE = $(OUT_DIR)/pm2_http_server_data.csv
@@ -56,6 +68,20 @@ stop-http-pm2:
 
 bench-http-pm2: start-http-pm2 ab-http-pm2 stop-http-pm2
 
+start-http-cluster: pid-dir
+	$(NODE) ${HTTP_CLUSTER_SERVER} ${HTTP_CLUSTER_SERVER_PORT} & echo "$$!" > "${HTTP_CLUSTER_SERVER_PIDFILE}"
+	while ! lsof -i :${HTTP_CLUSTER_SERVER_PORT} | grep -q LISTEN; do sleep 10; done
+
+ab-http-cluster: node-version
+	$(AB) -n 10000 -c 100 -e "${HTTP_CLUSTER_SERVER_CSVFILE}" http://localhost:${HTTP_CLUSTER_SERVER_PORT}/ > "${HTTP_CLUSTER_SERVER_SUMMARYFILE}"
+
+stop-http-cluster:
+	if [ -f "${HTTP_CLUSTER_SERVER_PIDFILE}" ]; \
+	then pkill -F "${HTTP_CLUSTER_SERVER_PIDFILE}"; rm -f "${HTTP_CLUSTER_SERVER_PIDFILE}"; \
+	fi
+
+bench-http-cluster: start-http-cluster ab-http-cluster stop-http-cluster
+
 start-socket: pid-dir
 	$(NODE) ${SOCKET_SERVER} ${SOCKET_SERVER_PORT} & echo "$$!" > "${SOCKET_SERVER_PIDFILE}"
 	while ! lsof -i :${SOCKET_SERVER_PORT} | grep -q LISTEN; do sleep 10; done
@@ -82,6 +108,20 @@ stop-socket-pm2:
 
 bench-socket-pm2: start-socket-pm2 ab-socket-pm2 stop-socket-pm2
 
-bench-all: bench-http bench-http-pm2 bench-socket bench-http-pm2
+start-socket-cluster: pid-dir
+	$(NODE) ${SOCKET_CLUSTER_SERVER} ${SOCKET_CLUSTER_SERVER_PORT} & echo "$$!" > "${SOCKET_CLUSTER_SERVER_PIDFILE}"
+	while ! lsof -i :${SOCKET_CLUSTER_SERVER_PORT} | grep -q LISTEN; do sleep 10; done
 
-.PHONY: pid-dir node-version start-http-pm2 ab-http-pm2 stop-http-pm2 bench-http-pm2 start-http ab-http stop-http bench-http start-socket-pm2 ab-socket-pm2 stop-socket-pm2 bench-socket-pm2 start-socket ab-socket stop-socket bench-socket bench-all
+ab-socket-cluster: node-version
+	$(AB) -n 10000 -c 100 -e "${SOCKET_CLUSTER_SERVER_CSVFILE}" http://localhost:${SOCKET_CLUSTER_SERVER_PORT}/ > "${SOCKET_CLUSTER_SERVER_SUMMARYFILE}"
+
+stop-socket-cluster:
+	if [ -f "${SOCKET_CLUSTER_SERVER_PIDFILE}" ]; \
+	then pkill -F "${SOCKET_CLUSTER_SERVER_PIDFILE}"; rm -f "${SOCKET_CLUSTER_SERVER_PIDFILE}"; \
+	fi
+
+bench-socket-cluster: start-socket-cluster ab-socket-cluster stop-socket-cluster
+
+bench-all: bench-http bench-http-pm2 bench-socket bench-http-pm2 bench-socket-cluster
+
+.PHONY: pid-dir node-version start-http-pm2 ab-http-pm2 stop-http-pm2 bench-http-pm2 start-http ab-http stop-http bench-http start-http-cluster ab-http-cluster stop-http-cluster bench-http-cluster start-socket-pm2 ab-socket-pm2 stop-socket-pm2 bench-socket-pm2 start-socket ab-socket stop-socket bench-socket start-socket-cluster ab-socket-cluster stop-socket-cluster bench-socket-cluster bench-all
