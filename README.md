@@ -44,6 +44,51 @@ Run a benchmark on node.js server using the net module with the cluster module f
 
 ### 2017-11-30
 
+OS: MacOS Sierra (10.12.6)
+CPU: 4 Core (8 Threads) 2.3 GHz Intel Core i7
+RAM: 16 GB 1600 MHz DDR3
+DISK: 500GB APPLE SSD SM0512F
+
+V8’s max_old_space_size left at default (~1.5G)
+
+HTTP             1,535 RPS
+Socket           1,778 RPS
+HTTP/PM2         1,407 RPS
+Socket/PM2        454 RPS
+HTTP/Cluster      767 RPS
+Socket/Cluster    685 RPS
+
+---
+
+OS: CentOS release 6.9 (Final)
+CPU: 1 Core (1 Thread) Intel(R) Xeon(R) CPU E3-1230 V2 @ 3.30GHz
+RAM: 4G DDR3-ECC-Unbuffered Memory
+DISK: 40GB WD-RE4 7200 RPM SATA Drives
+
+V8’s max_old_space_size left at default (~1.5G)
+
+HTTP             3,868 RPS
+Socket           5,945 RPS
+
+---
+
+OS: CentOS release 6.9 (Final)
+CPU: 2 Core (2 Threads) Intel(R) Xeon(R) CPU E3-1265L V2 @ 2.50GHz
+RAM: 2G DDR3-ECC-Unbuffered Memory
+DISK: 100GB WD-RE4 7200 RPM SATA Drives
+
+V8’s max_old_space_size left at default (~1.5G)
+
+HTTP             3,516 RPS
+Socket           6,727 RPS
+HTTP/PM2         1,911 RPS
+Socket/PM2       2,484 RPS
+HTTP/Cluster     2,503 RPS
+Socket/Cluster   3,183 RPS
+
+---
+
+OS: CentOS release 6.9 (Final)
 CPU: 4 Core (8 Threads) Intel(R) Xeon(R) CPU E3-1230 V2 @ 3.30GHz
 RAM: 16G DDR3-ECC-Unbuffered Memory
 DISK: 1TB WD-RE4 7200 RPM SATA Drives
@@ -56,3 +101,4 @@ HTTP/PM2         5,851 RPS
 Socket/PM2       6,760 RPS
 HTTP/Cluster     7,187 RPS
 Socket/Cluster   7,124 RPS
+
