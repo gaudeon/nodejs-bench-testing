@@ -42,7 +42,7 @@ Run a benchmark on node.js server using the net module with the cluster module f
 
 ## Benchmarking Results
 
-### 2017-11-30
+### 2017-11-30 (Node Version: 8.9.1)
 
 OS: MacOS Sierra (10.12.6)
 CPU: 4 Core (8 Threads) 2.3 GHz Intel Core i7
