@@ -10,20 +10,25 @@ use warnings;
 
 use File::Spec;
 use Data::Debug;
+use List::Util qw(reduce);
 
 sub new {
     my $class = shift;
     my $hash = shift || { files => [] };
-debug $hash->{'files'};
+
     $hash->{'file_labels'} = {
         'http_server_summary.txt' => 'HTTP',
         'https_server_summary.txt' => 'HTTPS',
         'socket_server_summary.txt' => 'Socket',
         'pm2_http_server_summary.txt' => 'HTTP/PM2',
+        'pm2_https_server_summary.txt' => 'HTTPS/PM2',
         'pm2_socket_server_summary.txt' => 'Socket/PM2',
         'http_cluster_server_summary.txt' => 'HTTP/Cluster',
+        'https_cluster_server_summary.txt' => 'HTTPS/Cluster',
         'socket_cluster_server_summary.txt' => 'Socket/Cluster',
     };
+
+    $hash->{'first_col_width'} = length reduce { length($a) > length($b) ? $a : $b } values %{$hash->{'file_labels'}};
 
     $hash->{'file_path_map'} = { map { $_ => (File::Spec->splitpath( $_ ))[2] } @{$hash->{'files'}} };
 
@@ -57,8 +62,17 @@ sub run {
 sub print {
     my ($self, $report) = @_;
 
+    my $cell_spacing = 8;
+
+    my $second_col_width = length reduce { length($a) > length($b) ? $a : $b }
+                                     map { $report->{$_}{'RPS'} }
+                                    keys %$report;
+
     for my $label ( sort keys %$report ) {
-        print $label, "\t"x2, $report->{$label}{'RPS'}, " RPS", "\n";
+        my $first_col_spacing_length  = $self->{'first_col_width'} - length($label);
+        my $second_col_spacing_length = $second_col_width - length($report->{$label}{'RPS'});
+
+        print $label, " " x $first_col_spacing_length, " " x ($cell_spacing + $second_col_spacing_length), $report->{$label}{'RPS'}, " RPS", "\n";
     }
 }
 

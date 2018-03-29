@@ -25,6 +25,12 @@ HTTP_CLUSTER_SERVER_PIDFILE = ./pids/http_cluster_server.pid
 HTTP_CLUSTER_SERVER_CSVFILE = $(OUT_DIR)/http_cluster_server_data.csv
 HTTP_CLUSTER_SERVER_SUMMARYFILE = $(OUT_DIR)/http_cluster_server_summary.txt
 
+HTTPS_CLUSTER_SERVER = src/https_cluster/server.js
+HTTPS_CLUSTER_SERVER_PORT = 8080
+HTTPS_CLUSTER_SERVER_PIDFILE = ./pids/https_cluster_server.pid
+HTTPS_CLUSTER_SERVER_CSVFILE = $(OUT_DIR)/https_cluster_server_data.csv
+HTTPS_CLUSTER_SERVER_SUMMARYFILE = $(OUT_DIR)/https_cluster_server_summary.txt
+
 SOCKET_SERVER = src/socket/server.js
 SOCKET_SERVER_PORT = 8080
 SOCKET_SERVER_PIDFILE = ./pids/socket_server.pid
@@ -41,6 +47,9 @@ PM2_INSTANCES = max
 
 PM2_HTTP_SERVER_CSVFILE = $(OUT_DIR)/pm2_http_server_data.csv
 PM2_HTTP_SERVER_SUMMARYFILE = $(OUT_DIR)/pm2_http_server_summary.txt
+
+PM2_HTTPS_SERVER_CSVFILE = $(OUT_DIR)/pm2_https_server_data.csv
+PM2_HTTPS_SERVER_SUMMARYFILE = $(OUT_DIR)/pm2_https_server_summary.txt
 
 PM2_SOCKET_SERVER_CSVFILE = $(OUT_DIR)/pm2_socket_server_data.csv
 PM2_SOCKET_SERVER_SUMMARYFILE = $(OUT_DIR)/pm2_socket_server_summary.txt
@@ -59,6 +68,8 @@ certs: certs-dir
 	./scripts/generate_localhost_cert.sh
 
 start-http: pid-dir
+	echo "Starting server in 10 seconds..."
+	sleep 10;
 	$(NODE) ${HTTP_SERVER} ${HTTP_SERVER_PORT} & echo "$$!" > "${HTTP_SERVER_PIDFILE}"
 	while ! lsof -i :${HTTP_SERVER_PORT} | grep -q LISTEN; do sleep 10; done
 
@@ -73,11 +84,13 @@ stop-http:
 bench-http: start-http ab-http stop-http
 
 start-https: pid-dir certs
+	echo "Starting server in 10 seconds..."
+	sleep 10;
 	$(NODE) ${HTTPS_SERVER} ${HTTPS_SERVER_PORT} & echo "$$!" > "${HTTPS_SERVER_PIDFILE}"
 	while ! lsof -i :${HTTPS_SERVER_PORT} | grep -q LISTEN; do sleep 10; done
 
 ab-https: node-version
-	$(AB) -n 10000 -c 100 -e "${HTTPS_SERVER_CSVFILE}" http://localhost:${HTTPS_SERVER_PORT}/ > "${HTTPS_SERVER_SUMMARYFILE}"
+	$(AB) -n 10000 -c 100 -e "${HTTPS_SERVER_CSVFILE}" https://localhost:${HTTPS_SERVER_PORT}/ > "${HTTPS_SERVER_SUMMARYFILE}"
 
 stop-https:
 	if [ -f "${HTTPS_SERVER_PIDFILE}" ]; \
@@ -87,6 +100,8 @@ stop-https:
 bench-https: start-https ab-https stop-https
 
 start-http-pm2:
+	echo "Starting server in 10 seconds..."
+	sleep 10;
 	$(PM2) start -i ${PM2_INSTANCES} ${HTTP_SERVER}
 	while ! lsof -i :${HTTP_SERVER_PORT} | grep -q LISTEN; do sleep 10; done
 
@@ -98,7 +113,23 @@ stop-http-pm2:
 
 bench-http-pm2: start-http-pm2 ab-http-pm2 stop-http-pm2
 
+start-https-pm2:
+	echo "Starting server in 10 seconds..."
+	sleep 10;
+	$(PM2) start -i ${PM2_INSTANCES} ${HTTPS_SERVER}
+	while ! lsof -i :${HTTPS_SERVER_PORT} | grep -q LISTEN; do sleep 10; done
+
+ab-https-pm2: node-version
+	$(AB) -n 10000 -c 100 -e "${PM2_HTTPS_SERVER_CSVFILE}" https://localhost:${HTTPS_SERVER_PORT}/ > "${PM2_HTTPS_SERVER_SUMMARYFILE}"
+
+stop-https-pm2:
+	$(PM2) delete ${HTTPS_SERVER}
+
+bench-https-pm2: start-https-pm2 ab-https-pm2 stop-https-pm2
+
 start-http-cluster: pid-dir
+	echo "Starting server in 10 seconds..."
+	sleep 10;
 	$(NODE) ${HTTP_CLUSTER_SERVER} ${HTTP_CLUSTER_SERVER_PORT} & echo "$$!" > "${HTTP_CLUSTER_SERVER_PIDFILE}"
 	while ! lsof -i :${HTTP_CLUSTER_SERVER_PORT} | grep -q LISTEN; do sleep 10; done
 
@@ -112,7 +143,25 @@ stop-http-cluster:
 
 bench-http-cluster: start-http-cluster ab-http-cluster stop-http-cluster
 
+start-https-cluster: pid-dir
+	echo "Starting server in 10 seconds..."
+	sleep 10;
+	$(NODE) ${HTTPS_CLUSTER_SERVER} ${HTTPS_CLUSTER_SERVER_PORT} & echo "$$!" > "${HTTPS_CLUSTER_SERVER_PIDFILE}"
+	while ! lsof -i :${HTTPS_CLUSTER_SERVER_PORT} | grep -q LISTEN; do sleep 10; done
+
+ab-https-cluster: node-version
+	$(AB) -n 10000 -c 100 -e "${HTTPS_CLUSTER_SERVER_CSVFILE}" https://localhost:${HTTPS_CLUSTER_SERVER_PORT}/ > "${HTTPS_CLUSTER_SERVER_SUMMARYFILE}"
+
+stop-https-cluster:
+	if [ -f "${HTTPS_CLUSTER_SERVER_PIDFILE}" ]; \
+	then pkill -F "${HTTPS_CLUSTER_SERVER_PIDFILE}"; rm -f "${HTTPS_CLUSTER_SERVER_PIDFILE}"; \
+	fi
+
+bench-https-cluster: start-https-cluster ab-https-cluster stop-https-cluster
+
 start-socket: pid-dir
+	echo "Starting server in 10 seconds..."
+	sleep 10;
 	$(NODE) ${SOCKET_SERVER} ${SOCKET_SERVER_PORT} & echo "$$!" > "${SOCKET_SERVER_PIDFILE}"
 	while ! lsof -i :${SOCKET_SERVER_PORT} | grep -q LISTEN; do sleep 10; done
 
@@ -127,6 +176,8 @@ stop-socket:
 bench-socket: start-socket ab-socket stop-socket
 
 start-socket-pm2:
+	echo "Starting server in 10 seconds..."
+	sleep 10;
 	$(PM2) start -i ${PM2_INSTANCES} ${SOCKET_SERVER}
 	while ! lsof -i :${SOCKET_SERVER_PORT} | grep -q LISTEN; do sleep 10; done
 
@@ -139,6 +190,8 @@ stop-socket-pm2:
 bench-socket-pm2: start-socket-pm2 ab-socket-pm2 stop-socket-pm2
 
 start-socket-cluster: pid-dir
+	echo "Starting server in 10 seconds..."
+	sleep 10;
 	$(NODE) ${SOCKET_CLUSTER_SERVER} ${SOCKET_CLUSTER_SERVER_PORT} & echo "$$!" > "${SOCKET_CLUSTER_SERVER_PIDFILE}"
 	while ! lsof -i :${SOCKET_CLUSTER_SERVER_PORT} | grep -q LISTEN; do sleep 10; done
 
@@ -155,6 +208,6 @@ bench-socket-cluster: start-socket-cluster ab-socket-cluster stop-socket-cluster
 report-results:
 	./scripts/parse_summary.pl ${ALL_SUMMARY_FILES}
 
-bench-all: bench-http bench-https bench-http-pm2 bench-socket bench-http-pm2 bench-socket-cluster report-results
+bench-all: bench-http bench-http-pm2 bench-http-cluster bench-https bench-https-pm2 bench-https-cluster bench-socket bench-socket-cluster bench-socket-pm2 report-results
 
-.PHONY: pid-dir node-version certs-dir certsstart-http-pm2 ab-http-pm2 stop-http-pm2 bench-http-pm2 start-http ab-http stop-http bench-http start-https ab-https stop-https bench-https start-http-cluster ab-http-cluster stop-http-cluster bench-http-cluster start-socket-pm2 ab-socket-pm2 stop-socket-pm2 bench-socket-pm2 start-socket ab-socket stop-socket bench-socket start-socket-cluster ab-socket-cluster stop-socket-cluster bench-socket-cluster bench-all report-results
+.PHONY: pid-dir node-version certs-dir certsstart-http-pm2 ab-http-pm2 stop-http-pm2 bench-http-pm2 start-https-pm2 ab-https-pm2 stop-https-pm2 bench-https-pm2 start-http ab-http stop-http bench-http start-https ab-https stop-https bench-https start-http-cluster ab-http-cluster stop-http-cluster bench-http-cluster start-socket-pm2 ab-socket-pm2 stop-socket-pm2 bench-socket-pm2 start-socket ab-socket stop-socket bench-socket start-socket-cluster ab-socket-cluster stop-socket-cluster bench-socket-cluster bench-all report-results start-https-cluster ab-https-cluster stop-https-cluster bench-https-cluster
